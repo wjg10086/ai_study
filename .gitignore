@@ -1,0 +1,29 @@
+# General
+.DS_Store
+.idea
+.vscode
+*.log
+*.swp
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+.env
+*.egg-info/
+dist/
+build/
+intellimulti-backend/temp/
+
+# Node.js / Frontend
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+intellimulti-frontend/dist/
+intellimulti-frontend/dist-ssr/
+intellimulti-frontend/*.local
