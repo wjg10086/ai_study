@@ -32,9 +32,9 @@ async def chat_stream(
 ):
     return await handle_chat_stream(image_file, content_blocks, history, audio_file, pdf_file)
 
-# @app.post("/api/chat", summary="同步聊天接口", response_model=MessageResponse)
-# async def chat_sync_api(request: MessageRequest):
-#     return await handle_chat_sync(request)
+@app.post("/api/chat", summary="同步聊天接口", response_model=MessageResponse)
+async def chat_sync_api(request: MessageRequest):
+    return await handle_chat_sync(request)
 
 # 启动服务
 if __name__ == "__main__":

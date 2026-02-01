@@ -16,4 +16,4 @@ class MessageResponse(BaseModel):
     content: str
     timestamp: str
     role: str
-    references: List[Dict[str, Any]] # PDF的引用
+    references: List[Dict[str, Any]] = [] # PDF的引用
