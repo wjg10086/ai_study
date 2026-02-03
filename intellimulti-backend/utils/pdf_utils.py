@@ -58,7 +58,10 @@ class PDFProcessor:
             print('保存临时文件')
 
             # 创建临时文件
-            tmp_file_path = r'temp\\' + filename
+            temp = r'temp'
+            # 先创建 temp 目录（如果不存在）, exist_ok=True 表示如果目录已存在，不会报错
+            os.makedirs(temp, exist_ok=True)
+            tmp_file_path = os.path.join(temp, filename)
             with open(tmp_file_path, 'wb') as f:
                 f.write(file_content)
 
