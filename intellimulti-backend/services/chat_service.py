@@ -15,20 +15,29 @@ async def generate_streaming_response(
         messages: List[BaseMessage],
         pdf_chunks: List[Dict[str, Any]] = None
 ) -> AsyncGenerator[str, None]:
-    """生成流式响应"""
+    """
+        生成流式响应
+        采用 SSE（text/event-stream），
+            - 基于HTTP协议
+            - 流式输出
+            - 单向通信（服务端发送给客户端）
+            - 自动重连
+        数据格式为 data: {JSON字符串}\n\n，客户端会按 \n\n 分割，逐行解析 data
+    """
     try:
         model = await get_chat_model()
         # 创建流式响应
         full_response = ""
 
         chunk_count = 0
+        # model.astream内部也是利用yield异步生成器，async for 会逐次获取模型的输出块
         async for chunk in model.astream(messages):
             chunk_count += 1
             if hasattr(chunk, 'content') and chunk.content:
                 content = chunk.content
                 full_response += content
 
-                # 直接发送每个chunk的内容，避免重复
+                # 把当前块包装成 SSE 格式，通过 yield 推送给前端
                 data = {
                     "type": "content_delta",
                     "content": content,
