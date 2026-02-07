@@ -153,7 +153,7 @@ async def get_current_weather() -> WeatherInfo:
              '''
     )
 
-    result = agent.invoke(
+    result = await agent.ainvoke(
         {'messages': [{'role': 'user', 'content': '天气怎么样?'}]
     })
     print(type(result['structured_response']))

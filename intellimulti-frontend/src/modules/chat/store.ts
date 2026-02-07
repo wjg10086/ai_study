@@ -1,7 +1,5 @@
 import { create } from 'zustand';
-import { Message } from './types';
-
-export type ChatMode = 'qa' | 'image' | 'audio' | 'pdf';
+import { Message, ChatMode } from './types';
 
 interface ChatState {
   histories: Record<ChatMode, Message[]>;

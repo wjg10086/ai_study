@@ -1,4 +1,5 @@
 export type ContentType = 'text' | 'image' | 'audio';
+export type ChatMode = 'qa' | 'image' | 'audio' | 'pdf';
 
 export interface ContentBlock {
   type: ContentType;

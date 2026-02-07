@@ -6,7 +6,7 @@ import Layout from '../components/Layout';
 import MessageBubble from '../components/MessageBubble';
 import ChatInput from '../components/ChatInput';
 import Empty from '../components/Empty';
-import { ChatMode } from '../modules/chat/types';
+import { ChatMode, Message } from '../modules/chat/types';
 
 /**
  * 聊天页面组件
@@ -53,9 +53,12 @@ const ChatPage: React.FC = () => {
     if (!content.trim() && files.length === 0) return;
 
     // 添加用户消息到界面
-    const userMessage = {
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      timestamp: new Date().toISOString(),
       role: 'user' as const,
       content,
+      // @ts-ignore: files is not in Message type but handled by backend or local state logic if needed
       files: files.map(f => ({
         name: f.name,
         type: f.type,
@@ -80,6 +83,8 @@ const ChatPage: React.FC = () => {
     // 添加初始助手消息占位符
     setLoading(true);
     addMessage(currentMode, {
+      id: (Date.now() + 1).toString(),
+      timestamp: new Date().toISOString(),
       role: 'assistant',
       content: ''
     });

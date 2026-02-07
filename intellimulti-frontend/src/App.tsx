@@ -2,6 +2,7 @@ import React, { Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ConfigProvider } from 'antd';
 import zhCN from 'antd/locale/zh_CN';
+import { WeatherWidget } from './components/WeatherWidget';
 
 // Lazy load pages
 // 使用 default export 进行懒加载
@@ -18,6 +19,7 @@ function App() {
   return (
     <ConfigProvider locale={zhCN}>
       <BrowserRouter>
+        <WeatherWidget />
         <Suspense fallback={<Loading />}>
           <Routes>
             <Route path="/" element={<Home />} />
