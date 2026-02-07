@@ -1,8 +1,9 @@
 import uvicorn
 from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
-from schemas import MessageRequest, MessageResponse
-from services.chat_service import handle_chat_stream, handle_chat_sync
+from schema.schemas import MessageRequest, MessageResponse
+from schema.tool_schemas import WeatherInfo
+from services.chat_service import handle_chat_stream, handle_chat_sync, get_current_weather
 from config.settings import app_settings, cors_settings
 
 # 初始化 FastAPI 应用
@@ -35,6 +36,10 @@ async def chat_stream(
 @app.post("/api/chat", summary="同步聊天接口", response_model=MessageResponse)
 async def chat_sync_api(request: MessageRequest):
     return await handle_chat_sync(request)
+
+@app.post('/api/get_weather', summary='获取当前天气信息', response_model=WeatherInfo)
+async def get_weather() -> WeatherInfo:
+    return await get_current_weather()
 
 # 启动服务
 if __name__ == "__main__":

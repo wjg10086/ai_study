@@ -1,13 +1,18 @@
+import asyncio
 import json
 from datetime import datetime
 from typing import AsyncGenerator, List, Dict, Any
 from fastapi import HTTPException, UploadFile, File, Form
 from fastapi.responses import StreamingResponse
-from langchain_core.messages import BaseMessage
-from schemas import MessageRequest, MessageResponse
+from langchain.agents import create_agent
+from langchain.agents.structured_output import ToolStrategy, ProviderStrategy
+from langchain_core.messages import BaseMessage, AIMessage
+from schema.schemas import MessageRequest, MessageResponse
+from schema.tool_schemas import WeatherInfo
 from services.message_service import convert_history_to_messages, create_multimodal_message, \
     extract_references_from_content
-from services.model_service import build_deepseek_model, get_chat_model, build_dashscope_model
+from services.model_service import get_chat_model, build_deepseek_model, build_dashscope_model
+from utils.mcp_tools import get_weather_by_ip, get_weather_by_city
 from utils.pdf_utils import PDFProcessor
 
 
@@ -17,7 +22,7 @@ async def generate_streaming_response(
 ) -> AsyncGenerator[str, None]:
     """
         生成流式响应
-        采用 SSE（text/event-stream），
+        采用 SSE（text/event-stream），可以理解成：可流式传输的HTTP
             - 基于HTTP协议
             - 流式输出
             - 单向通信（服务端发送给客户端）
@@ -129,3 +134,31 @@ async def handle_chat_stream(
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+async def get_current_weather() -> WeatherInfo:
+    agent = create_agent(
+        model=await build_deepseek_model(),
+        tools=[get_weather_by_ip, get_weather_by_city],
+        response_format=ToolStrategy(WeatherInfo),
+        system_prompt='''
+        你是一个专业的天气助手，可调用以下两个工具获取天气，严格按规则执行：
+        1. 工具分工：
+           - get_weather_by_ip：无需传参，根据用户的IP地址获取其所在地的天气（用户未指定具体城市时调用）；
+           - get_weather_by_city：必须传参（城市名/经纬度），获取指定城市的天气（用户明确指定城市时调用）；
+        2. 调用规则：    
+           - 如果用户提问包含具体城市名（如南京、北京、上海），直接调用get_weather_by_city，传参为该城市名；
+           - 如果用户仅问"今天天气怎么样"、"本地天气"等未指定城市的问题，则调用get_weather_by_ip返回实际经纬度，直接将经纬度传参给get_weather_by_city获取天气。
+      
+             '''
+    )
+
+    result = agent.invoke(
+        {'messages': [{'role': 'user', 'content': '天气怎么样?'}]
+    })
+    print(type(result['structured_response']))
+    # 要用deepseek模型，qwen不能输出自定义响应结构
+    return result['structured_response']
+
+# if __name__ == "__main__":
+#     asyncio.run(get_current_weather())

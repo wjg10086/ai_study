@@ -4,7 +4,7 @@ from typing import List, Dict, Any
 from fastapi import UploadFile
 from langchain.messages import SystemMessage, HumanMessage, AIMessage
 from langchain_core.messages import BaseMessage
-from schemas import MessageRequest
+from schema.schemas import MessageRequest
 from utils.audio_utils import AudioProcessor
 from utils.image_utils import ImageProcessor
 

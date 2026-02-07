@@ -45,7 +45,7 @@ async def build_dashscope_model():
     :return: BaseChatModel 实例
     '''
     return init_chat_model(
-        model="qwen-turbo",  # 百炼模型名（qwen-turbo/qwen-plus/qwen-max）
+        model="qwen-max",  # 百炼模型名（qwen-turbo/qwen-plus/qwen-max）
         base_url="https://dashscope.aliyuncs.com/compatible-mode/v1",  # 百炼兼容OpenAI的固定地址
         api_key=os.getenv("DASHSCOPE_API_KEY"),  # 你的百炼API_KEY环境变量
         model_provider="openai"  # 关键：显式指定提供商（必加，否则报错）
