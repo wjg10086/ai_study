@@ -7,6 +7,9 @@ from fastapi.responses import StreamingResponse
 from langchain.agents import create_agent
 from langchain.agents.structured_output import ToolStrategy, ProviderStrategy
 from langchain_core.messages import BaseMessage, AIMessage
+
+from common import constant
+from common.redis_client import redis_client
 from schema.schemas import MessageRequest, MessageResponse
 from schema.tool_schemas import WeatherInfo
 from services.message_service import convert_history_to_messages, create_multimodal_message, \
@@ -153,12 +156,16 @@ async def get_current_weather() -> WeatherInfo:
              '''
     )
 
-    result = await agent.ainvoke(
+    response = await agent.ainvoke(
         {'messages': [{'role': 'user', 'content': '天气怎么样?'}]
     })
-    print(type(result['structured_response']))
     # 要用deepseek模型，qwen不能输出自定义响应结构
-    return result['structured_response']
+    result = response['structured_response']
+    print(type(result))
+    # 存储redis过期时间半小时，防止频繁调用天气
+    redis_client.set_object(constant.WEATHER_CATCH, result, 1800)
+    return result
+
 
 # if __name__ == "__main__":
 #     asyncio.run(get_current_weather())

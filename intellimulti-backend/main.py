@@ -1,6 +1,9 @@
 import uvicorn
 from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
+
+from common import constant
+from common.redis_client import redis_client
 from schema.schemas import MessageRequest, MessageResponse
 from schema.tool_schemas import WeatherInfo
 from services.chat_service import handle_chat_stream, handle_chat_sync, get_current_weather
@@ -39,6 +42,9 @@ async def chat_sync_api(request: MessageRequest):
 
 @app.post('/api/get_weather', summary='获取当前天气信息', response_model=WeatherInfo)
 async def get_weather() -> WeatherInfo:
+    weatherInfo = redis_client.get_object(constant.WEATHER_CATCH)
+    if weatherInfo:
+        return weatherInfo
     return await get_current_weather()
 
 # 启动服务
